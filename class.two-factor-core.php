@@ -19,7 +19,9 @@ class Two_Factor_Core {
 	 */
 	private function __construct() {
 		add_action( 'init',                array( $this, 'get_providers' ) );
+		add_action( 'admin_init',          array( $this, 'register_settings' ), 5 );
 		add_action( 'wp_login',            array( $this, 'wp_login' ), 10, 2 );
+		add_action( 'admin_menu',          array( $this, 'maybe_admin_menu' ) );
 		add_action( 'login_form_twostep',  array( $this, 'login_form_twostep' ) );
 		add_action( 'show_user_profile',   array( $this, 'user_two_factor_options' ) );
 		add_action( 'edit_user_profile',   array( $this, 'user_two_factor_options' ) );
@@ -66,6 +68,45 @@ class Two_Factor_Core {
 		}
 
 		return $providers;
+	}
+
+	/**
+	 * Maybe adds an admin menu item for two-factor.
+	 */
+	function maybe_admin_menu() {
+		$provider = $this->get_provider_for_user();
+		if ( $provider ) {
+			add_users_page( __( 'Two Factor Authentication', 'two-factor' ), __( 'Two Factor', 'two-factor' ), 'read', 'two-factor', array( $this, 'admin_page' ) );
+		}
+	}
+
+	/**
+	 *
+	 */
+	function register_settings() {
+		add_settings_section(
+			'two-factor-auth-settings',
+			__( 'Two Factor Authentication Settings' , 'jetpack' ),
+			'__return_null',
+			'two-factor'
+		);
+	}
+
+	/**
+	 *
+	 */
+	function admin_page() {
+		?>
+		<div class="wrap">
+			<h2><?php esc_html_e( 'Two Factor Authentication', 'two-factor' ); ?></h2>
+			<p><?php esc_html_e( 'Thanks for taking your first step to a more secure web! You can configure any available options from your selected two-factor provider here.', 'two-factor' ); ?></p>
+			<form method="post" action="options.php">
+				<?php settings_fields( 'two-factor' ); ?>
+				<?php do_settings_sections( 'two-factor' ); ?>
+				<?php submit_button(); ?>
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
