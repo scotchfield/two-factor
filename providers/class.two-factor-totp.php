@@ -16,7 +16,13 @@ class Two_Factor_Totp extends Two_Factor_Provider {
 		return _x( 'Time Based One-Time Password (Google Authenticator)', 'Provider Label', 'two-factor' );
 	}
 
-	function authentication_page( $user ) {}
-	function validate_authentication( $user ) {}
+	function authentication_page( $user ) {
+		require_once( ABSPATH .  '/wp-admin/includes/template.php' );
+		submit_button( __( 'Go away.', 'two-factor' ) );
+	}
+
+	function validate_authentication( $user ) {
+		return true;
+	}
 
 }
